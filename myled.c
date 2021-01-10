@@ -8,7 +8,7 @@
 #include <linux/device.h>
 #include <linux/uaccess.h>
 #include <linux/io.h>
-//#include <linux/delay.h> //msleepのため
+#include <linux/delay.h> //msleepのため
 
 MODULE_AUTHOR("Ryuichi Ueda & Koki Shu");
 MODULE_DESCRIPTION("driver for LED control");
@@ -21,39 +21,104 @@ static struct class *cls = NULL; //あくまでクラスという構造体
 static volatile u32 *gpio_base = NULL; //アドレスをマッピングするための配列をグローバルで定義（動かすなよ）
 
 static int gpio[5] = {21, 12, 16, 9, 25};
+static int blue_rate = 7;
+static int yellow_rate = 1;
+static int red_rate = 3;
 
 static ssize_t led_write(struct file* filp, const char* buf, size_t count, loff_t* pos)
 {
 	char c;
-	int i;
+	int i, k;
+	int j = 0;
+
 	if(copy_from_user(&c, buf, sizeof(char)))
 		return -EFAULT;
 
 	//printk(KERN_INFO "receive %c\n", c);
 	
+	/*全消灯*/
 	if(c == '0'){
 		for(i=0; i<5; i++){
-		gpio_base[10] = 1 << gpio[i];
+			gpio_base[10] = 1 << gpio[i];
 		}
 	}
-	else if(c == 'a')
-		gpio_base[7] = 1 << gpio[0];
-	else if(c == 'b')
-		gpio_base[7] = 1 << gpio[1];
-	else if(c == 'c')
-		gpio_base[7] = 1 << gpio[2];
-	else if(c == 'd')
-		gpio_base[7] = 1 << gpio[3];
-	else if(c == 'e')
-		gpio_base[7] = 1 << gpio[4];
-/*	else if(c == '1'){
-		for(i=0; i<5; i++){
-			gpio[7] = 1 << gpio[i];
-			msleep(1000);
+	
+	/*ブザーと緑led点滅*/
+	else if(c == 'a'){
+		for(i= 0;i< 5; i++){
+			msleep(250);
+			gpio_base[7] = 1 << gpio[0];
+			gpio_base[7] = 1 << gpio[1];
+			msleep(250);
+			gpio_base[10] = 1 << gpio[0];
+			gpio_base[10] = 1 << gpio[1];
 		}
 	}
-*/		
 
+	/*青led点灯*/
+	else if(c == 'b')
+		gpio_base[7] = 1 << gpio[2];
+
+	/*黄led点灯*/
+	else if(c == 'y')
+		gpio_base[7] = 1 << gpio[3];
+
+	/*赤led点灯*/
+	else if(c == 'r')
+		gpio_base[7] = 1 << gpio[4];
+
+	/*信号機モード*/
+	else if(c == '1'){
+		/*初めに全消灯*/
+		for(i=0; i<5; i++){
+			gpio_base[10] = 1 << gpio[i];
+		}
+
+		/*点灯パート*/
+		for(i=0; i<3; i++){
+			if(j== 3)
+				break;
+
+			/*青led点灯パート(ブザー音あり)*/
+			if(i== 0){
+				gpio_base[7] = 1 << gpio[i+2];
+				for(k= 0; k< blue_rate* 2; k++){ 
+					gpio_base[7] = 1 << gpio[1];//ブザー音
+					msleep(250);
+					gpio_base[10] = 1 << gpio[1];
+					msleep(250);
+				}
+				gpio_base[10] = 1 << gpio[i+2];
+			}
+
+			/*黄led点灯パート*/
+			else if(i== 1){
+			gpio_base[7] = 1 << gpio[i+2];
+			msleep(yellow_rate* 1000);
+			gpio_base[10] = 1 << gpio[i+2];
+			}
+			/*赤led点灯パート*/
+			else if(i==2){
+			gpio_base[7] = 1 << gpio[i+2];
+			msleep(red_rate* 1000);
+			gpio_base[10] = 1 << gpio[i+2];
+
+			i = -1;
+			j++;
+			}
+		}
+
+		/*終了を知らす全点灯*/
+		msleep(500);
+		for(i=0; i<3; i++){
+			gpio_base[7] = 1 << gpio[i+2];
+		}
+		msleep(2000);
+		for(i=0; i<3; i++){
+			gpio_base[10] = 1 << gpio[i+2];
+		}
+	}
+		
 	return 1;//１バイト読んだよ（ダミー）　０にすると止まらない　システムが止まり再起動が必要
 }
 static ssize_t sushi_read(struct file* filp, char* buf, size_t count, loff_t* pos)
