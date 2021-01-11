@@ -31,7 +31,7 @@
 
 ![回路](https://user-images.githubusercontent.com/70384485/104144481-afbf0300-5406-11eb-81df-b445740c1edd.jpg)
 
-![image](https://user-images.githubusercontent.com/70384485/104144647-69b66f00-5407-11eb-94fe-7e7569ba4624.png)
+<img src= "https://user-images.githubusercontent.com/70384485/104144647-69b66f00-5407-11eb-94fe-7e7569ba4624.png" width="400">  
 
 ## 実行方法
 
