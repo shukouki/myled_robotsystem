@@ -73,4 +73,4 @@ https://github.com/GakuKuwano/robosys2020_led
 
 ## ライセンス
 
-[GNU General Public License v3.0](https://github.com/shukouki/myled_robotsystem//blob//COPYING)
+[GNU General Public License v3.0](https://github.com/shukouki/myled_robotsystem/blob/main/COPYING)
