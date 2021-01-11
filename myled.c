@@ -93,15 +93,15 @@ static ssize_t led_write(struct file* filp, const char* buf, size_t count, loff_
 
 			/*黄led点灯パート*/
 			else if(i== 1){
-			gpio_base[7] = 1 << gpio[i+2];
-			msleep(yellow_rate* 1000);
-			gpio_base[10] = 1 << gpio[i+2];
+				gpio_base[7] = 1 << gpio[i+2];
+				msleep(yellow_rate* 1000);
+				gpio_base[10] = 1 << gpio[i+2];
 			}
 			/*赤led点灯パート*/
 			else if(i==2){
-			gpio_base[7] = 1 << gpio[i+2];
-			msleep(red_rate* 1000);
-			gpio_base[10] = 1 << gpio[i+2];
+				gpio_base[7] = 1 << gpio[i+2];
+				msleep(red_rate* 1000);
+				gpio_base[10] = 1 << gpio[i+2];
 
 			i = -1;
 			j++;
